@@ -1,4 +1,4 @@
-# generatelivecaptions
+# landmark_recognition
 
 A new Flutter project.
 

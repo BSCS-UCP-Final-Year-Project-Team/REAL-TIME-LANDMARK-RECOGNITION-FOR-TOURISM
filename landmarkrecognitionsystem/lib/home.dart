@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:landmarkrecognitionsystem/generatecaptions.dart';
+import 'package:landmarkrecognitionsystem/generatecamera.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:tflite/tflite.dart';
 
@@ -57,15 +57,13 @@ class _HomeState extends State<Home> {
     var output = await Tflite.runModelOnImage(
         path: image.path,
         numResults: 25,
-        threshold: 0.5,
+        threshold: 0.05,
         imageMean: 127.5,
         imageStd: 127.5);
 
     setState(() {
       _loading = false;
       _output = output;
-      result = _output[0]['label'];
-      result = result.substring(2);
     });
   }
 
@@ -103,25 +101,27 @@ class _HomeState extends State<Home> {
               Text(
                 'Landmark Recognition System',
                 style: TextStyle(
-                  color: Colors.white,
+                  color: Colors.black87,
                   fontWeight: FontWeight.bold,
-                  fontSize: 25,
+                  fontSize: 22,
                 ),
+              ),
+              SizedBox(
+                height: 5,
               ),
               Text(
                 'Walled City of Lahore',
                 style: TextStyle(
-                  color: Colors.white,
+                  color: Colors.black87,
                   fontSize: 18,
-                  fontWeight: FontWeight.bold,
                 ),
               ),
               SizedBox(
-                height: 30,
+                height: 20,
               ),
               Container(
-                height: MediaQuery.of(context).size.height - 270,
-                padding: EdgeInsets.all(30),
+                height: MediaQuery.of(context).size.height / 1.25,
+                padding: EdgeInsets.all(20),
                 decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(30),
@@ -137,10 +137,11 @@ class _HomeState extends State<Home> {
                     Center(
                       child: _loading
                           ? Container(
-                              width: 500,
+                              width: MediaQuery.of(context).size.width,
                               child: Column(
                                 children: <Widget>[
                                   Container(
+                                    // nested container might be a mistake
                                     width: 300,
                                     child: Image.asset('assets/landmarks.png'),
                                     height: 280,
@@ -155,7 +156,7 @@ class _HomeState extends State<Home> {
                                                 context,
                                                 MaterialPageRoute(
                                                     builder: (context) =>
-                                                        GenerateLiveCaptions()));
+                                                        GenerateLiveCamera()));
                                           },
                                           child: Container(
                                             width: MediaQuery.of(context)
@@ -168,7 +169,7 @@ class _HomeState extends State<Home> {
                                               vertical: 17,
                                             ),
                                             decoration: BoxDecoration(
-                                              color: Color(0xFF56ab2f),
+                                              color: Colors.black,
                                               borderRadius:
                                                   BorderRadius.circular(6),
                                             ),
@@ -204,7 +205,7 @@ class _HomeState extends State<Home> {
                                               vertical: 17,
                                             ),
                                             decoration: BoxDecoration(
-                                              color: Color(0xFF56ab2f),
+                                              color: Colors.black,
                                               borderRadius:
                                                   BorderRadius.circular(6),
                                             ),
@@ -240,7 +241,7 @@ class _HomeState extends State<Home> {
                                               vertical: 17,
                                             ),
                                             decoration: BoxDecoration(
-                                              color: Color(0xFF56ab2f),
+                                              color: Colors.black,
                                               borderRadius:
                                                   BorderRadius.circular(6),
                                             ),
@@ -259,45 +260,31 @@ class _HomeState extends State<Home> {
                                 ],
                               ))
                           : Container(
-                              padding: EdgeInsets.only(top: 10),
+                              height: MediaQuery.of(context).size.height / 1.4,
                               child: Column(
                                 children: <Widget>[
-                                  Container(
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(5),
-                                    ),
-                                    height: 200,
-                                    child: Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: <Widget>[
-                                        Container(
-                                          child: IconButton(
-                                            onPressed: () {
-                                              setState(() {
-                                                _loading = true;
-                                                result = "Fetching Response...";
-                                              });
-                                            },
-                                            icon: Icon(Icons.arrow_back_ios),
-                                            color: Colors.black,
-                                          ),
+                                  Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: <Widget>[
+                                      Container(
+                                        child: IconButton(
+                                          onPressed: () {
+                                            setState(() {
+                                              _loading = true;
+                                            });
+                                          },
+                                          icon: Icon(Icons.arrow_back_ios),
+                                          color: Colors.black,
                                         ),
-                                        Container(
-                                          width: MediaQuery.of(context)
-                                                  .size
-                                                  .width -
-                                              205,
-                                          child: ClipRRect(
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                            child: Image.file(
-                                              _image,
-                                              fit: BoxFit.fill,
-                                            ),
-                                          ),
-                                        )
-                                      ],
+                                      ),
+                                    ],
+                                  ),
+                                  Container(
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(10),
+                                      child:
+                                          Image.file(_image, fit: BoxFit.fill),
                                     ),
                                   ),
                                   SizedBox(
@@ -309,7 +296,8 @@ class _HomeState extends State<Home> {
                                       textAlign: TextAlign.center,
                                       style: TextStyle(
                                         color: Colors.black,
-                                        fontSize: 14,
+                                        fontWeight: FontWeight.w900,
+                                        fontSize: 22,
                                       ),
                                     ),
                                   ),

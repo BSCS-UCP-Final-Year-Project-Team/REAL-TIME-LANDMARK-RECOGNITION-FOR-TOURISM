@@ -3,27 +3,26 @@ import 'dart:io';
 import 'dart:core';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
+import 'package:image/image.dart' as Img;
 import 'package:path_provider/path_provider.dart';
 import 'package:tflite/tflite.dart';
 
-class GenerateLiveCaptions extends StatefulWidget {
+class GenerateLiveCamera extends StatefulWidget {
   @override
-  _GenerateLiveCaptionsState createState() => _GenerateLiveCaptionsState();
+  _GenerateLiveCameraState createState() => _GenerateLiveCameraState();
 }
 
-class _GenerateLiveCaptionsState extends State<GenerateLiveCaptions> {
+class _GenerateLiveCameraState extends State<GenerateLiveCamera> {
   String result = 'Fetching Response...';
   List<CameraDescription> cameras;
   CameraController controller;
   bool takePhoto = false;
   List _output;
-  bool _loading = true;
 
   @override
   void initState() {
     super.initState();
     takePhoto = true;
-    _loading = true;
     detectCameras().then((_) {
       initializeController();
     });
@@ -42,23 +41,26 @@ class _GenerateLiveCaptionsState extends State<GenerateLiveCaptions> {
 
   @override
   void dispose() {
-    controller?.dispose();
+    controller.dispose();
     Tflite.close(); // to prevent memory leaks in app
+    cameras = null;
+    takePhoto = false;
     super.dispose();
   }
 
   classifyImage(File image) async {
     var output = await Tflite.runModelOnImage(
-        path: image.path,
-        numResults: 25,
-        threshold: 0.5,
-        imageMean: 127.5,
-        imageStd: 127.5);
+      path: image.path,
+      numResults: 25,
+      threshold: 0.1,
+      imageMean: 127.5,
+      imageStd: 127.5,
+    );
 
     setState(() {
-      _loading = false;
       _output = output;
       result = _output[0]['label'];
+      print(_output);
     });
   }
 
@@ -70,7 +72,7 @@ class _GenerateLiveCaptionsState extends State<GenerateLiveCaptions> {
       setState(() {});
 
       if (takePhoto) {
-        const interval = const Duration(seconds: 5);
+        const interval = const Duration(seconds: 2);
         new Timer.periodic(interval, (Timer t) => capturePictures());
       }
     });
@@ -86,10 +88,12 @@ class _GenerateLiveCaptionsState extends State<GenerateLiveCaptions> {
     if (takePhoto) {
       controller.takePicture(filePath).then((_) {
         if (takePhoto) {
+          Image im = Image(
+              image:
+                  ResizeImage(AssetImage(filePath), width: 224, height: 224));
+          //File img = File(im.toString());
           File imgFile = File(filePath);
           classifyImage(imgFile);
-        } else {
-          return;
         }
       });
     }
@@ -135,10 +139,13 @@ class _GenerateLiveCaptionsState extends State<GenerateLiveCaptions> {
           child: CameraPreview(controller),
         ),
         Container(
-          margin: EdgeInsets.fromLTRB(1, 10, 1, 1), //margin here
+          margin: EdgeInsets.fromLTRB(5, 20, 1, 1), //margin here
           child: IconButton(
             color: Colors.white,
-            icon: Icon(Icons.arrow_back_ios),
+            icon: Icon(
+              Icons.arrow_back_ios,
+              size: 30,
+            ),
             onPressed: () {
               setState(() {
                 takePhoto = false;
@@ -150,9 +157,9 @@ class _GenerateLiveCaptionsState extends State<GenerateLiveCaptions> {
         ),
         Container(
           margin: EdgeInsets.fromLTRB(
-              1, MediaQuery.of(context).size.height - 100, 1, 1), //margin here
+              1, MediaQuery.of(context).size.height - 101, 1, 1), //margin here
           width: MediaQuery.of(context).size.width,
-          height: MediaQuery.of(context).size.height - 700,
+          height: 100,
           decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(30),
